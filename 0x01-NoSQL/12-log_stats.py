@@ -3,15 +3,24 @@
 
 from pymongo import MongoClient
 
-client = MongoClient('mongodb://localhost:27017/')
-logs = client.logs
-nginx = logs.nginx
+def print_nginx_logs_stats():
+    client = MongoClient('mongodb://localhost:27017/')
+    
+    db = client['logs']
+    collection = db['nginx']
+    
+    total_logs = collection.count_documents({})
+    
+    methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
+    methods_counts = {method: collection.count_documents({"method": method}) for method in methods}
+    
+    get_status_count = collection.count_documents({"method": "GET", "path": "/status"})
+    
+    print(f"{total_logs} logs")
+    print("Methods:")
+    for method in methods:
+        print(f"\tmethod {method}: {methods_counts[method]}")
+    print(f"{get_status_count} status check")
 
-print(f"{nginx.count_documents()} logs")
-print("Methods:")
-print(f"\\tmethod GET: {nginx.count_documents({"method": "GET"})}")
-print(f"\\tmethod POST: {nginx.count_documents({"method": "POST"})}")
-print(f"\\tmethod PUT: {nginx.count_documents({"method": "PUT"})}")
-print(f"\\tmethod PATCH: {nginx.count_documents({"method": "PATCH"})}")
-print(f"\\tmethod DELETE: {nginx.count_documents({"method": "DELETE"})}")
-print(f"{nginx.count_documents({"method": "GET", "path": "/status"})} statu check")
+if __name__ == "__main__":
+    print_nginx_logs_stats()

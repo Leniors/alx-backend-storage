@@ -6,8 +6,8 @@ from pymongo import MongoClient
 def print_nginx_logs_stats():
     client = MongoClient('mongodb://localhost:27017/')
     
-    db = client['logs']
-    collection = db['nginx']
+    db = client.logs
+    collection = db.nginx
     
     total_logs = collection.count_documents({})
     
